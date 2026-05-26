@@ -11,7 +11,7 @@ import tempfile
 from fastapi.middleware.cors import CORSMiddleware
 
 from extract_data import extract_paper_details
-
+from similar_papers import retrieve_similar_papers
 # Init
 
 app = FastAPI()
@@ -37,7 +37,8 @@ stop_words = set(stopwords.words('english'))
 # Request schema
 class InputText(BaseModel):
     text: str
-
+class QueryRequest(BaseModel):
+    query: str
 
 # Preprocess  (Input text undergoes the same preprocessing as the training text data)
 def preprocess(text):
@@ -125,3 +126,7 @@ def predict_api(input: InputText):
         ]
     }
 
+@app.post("/similar-papers")
+async def similar_papers(request: QueryRequest):
+    results = retrieve_similar_papers(request.query)
+    return { "similar_papers": results }
